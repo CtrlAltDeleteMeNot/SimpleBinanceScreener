@@ -69,7 +69,7 @@
           const kline = await fetchDailyKline(symbol);
           const { open, close } = kline;
           const changePercent = ((close - open) / open * 100).toFixed(2);
-          if(changePercent < 10){
+          if(changePercent < 5){
             continue;
           }
 
