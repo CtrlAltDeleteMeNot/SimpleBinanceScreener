@@ -1,44 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Binance Daily Growth Monitor</title>
+  <title>Binance screener</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
     }
-    th, td {
+
+    th,
+    td {
       border: 1px solid #ddd;
       padding: 8px;
       text-align: center;
     }
+
     th {
       background-color: #f4f4f4;
     }
-    .refresh-button {
+
+    .filter-container {
       margin: 20px 0;
+    }
+
+    .filter-dropdown,
+    .refresh-button {
       padding: 10px 20px;
+      margin-right: 10px;
+      font-size: 16px;
+    }
+
+    .refresh-button {
       background-color: #4CAF50;
       color: white;
       border: none;
       cursor: pointer;
-      font-size: 16px;
     }
+
     .refresh-button:hover {
       background-color: #45a049;
     }
   </style>
   <script src="js/price_monitor.js"></script>
 </head>
+
 <body>
-  <h1>Binance Daily Growth Monitor</h1>
-  <button id="refresh-button" class="refresh-button" onclick="monitorDailyGrowth()">Refresh Data</button>
+  <h1>Binance screener</h1>
+  <div class="filter-container">
+    <select id="filter-dropdown" class="filter-dropdown">
+      <option value="DailyGrowthPlus05">Min 5% Growth</option>
+      <option value="DailyGrowthPlus10">Min 10% Growth</option>
+      <option value="ThreeConsecutiveRedDays">Three consecutive red days</option>
+      <option value="FourConsecutiveRedDays">Four consecutive red days</option>
+      <option value="all">Show All</option>
+    </select>
+    <button id="refresh-button" class="refresh-button" onclick="refresh()">Refresh Data</button>
+  </div>
   <table id="data-table">
     <thead>
       <tr>
@@ -54,23 +79,70 @@
   </table>
 
   <script>
-    
 
-    async function monitorDailyGrowth() {
+    function lockUi() {
       const refreshButton = document.getElementById('refresh-button');
       refreshButton.disabled = true; // Disable the button
       refreshButton.textContent = 'Refreshing...'; // Update button text
+      const filterDropdown = document.getElementById('filter-dropdown');
+      filterDropdown.disabled = true; // Disable the button
+    }
+
+    function unlockUi() {
+      const refreshButton = document.getElementById('refresh-button');
+      refreshButton.disabled = false; // Re-enable the button
+      refreshButton.textContent = 'Refresh Data'; // Restore button text
+      const filterDropdown = document.getElementById('filter-dropdown');
+      filterDropdown.disabled = false; // Re-enable the button
+    }
+
+    async function refresh() {
+      lockUi();
       const symbols = await fetchUSDCTradingPairs();
       const tableBody = document.querySelector('#data-table tbody');
       tableBody.innerHTML = '';
-
+      const filterDropdown = document.getElementById('filter-dropdown');
+      const selectedFilter = filterDropdown.value; // Get the selected filter value
       for (const symbol of symbols) {
         try {
-          const kline = await fetchDailyKline(symbol);
-          const { open, close } = kline;
+          const klines = await fetchDailyKlines(symbol, 30);
+          const last = klines.length - 1;
+          const { open, close } = klines[last];
           const changePercent = ((close - open) / open * 100).toFixed(2);
-          if(changePercent < 5){
+          if (selectedFilter == 'DailyGrowthPlus05' && changePercent < 5) {
             continue;
+          }
+          if (selectedFilter == 'DailyGrowthPlus10' && changePercent < 10) {
+            continue;
+          }
+          if (selectedFilter === "FourConsecutiveRedDays") {
+            // Skip if less than 5 days, maybe it's a new coin
+            if (klines.length < 5) {
+              continue;
+            }
+            // Check for four consecutive red days
+            const consecutiveRedDays = klines
+              .slice(-5, -1) // Get the last 4 days excluding the most recent day
+              .filter(day => day.close < day.open).length; // Count red days using a lambda function
+
+            if (consecutiveRedDays < 4) {
+              continue;
+            }
+          }
+
+          if (selectedFilter === "ThreeConsecutiveRedDays") {
+            // Skip if less than 4 days, maybe it's a new coin
+            if (klines.length < 4) {
+              continue;
+            }
+            // Check for four consecutive red days
+            const consecutiveRedDays = klines
+              .slice(-4, -1) // Get the last 3 days excluding the most recent day
+              .filter(day => day.close < day.open).length; // Count red days using a lambda function
+
+            if (consecutiveRedDays < 3) {
+              continue;
+            }
           }
 
           const row = document.createElement('tr');
@@ -85,12 +157,12 @@
           console.error(`Error fetching kline for ${symbol}:`, error);
         }
       }
-      refreshButton.disabled = false; // Re-enable the button
-      refreshButton.textContent = 'Refresh Data'; // Restore button text
+      unlockUi();
     }
 
     // Initial load
-    monitorDailyGrowth();
+    refresh();
   </script>
 </body>
+
 </html>
