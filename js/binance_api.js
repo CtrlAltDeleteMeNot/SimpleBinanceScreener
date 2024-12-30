@@ -5,8 +5,12 @@ const BASE_URL = 'https://api.binance.com/api/v3';
 async function fetchUSDCTradingPairs() {
   const response = await fetch(`${BASE_URL}/exchangeInfo`);
   const data = await response.json();
-  const symbols = data.symbols.filter((symbol) => symbol.symbol.toLowerCase().includes('usdc'));
-  return symbols.map((symbol) => symbol.symbol.toUpperCase());
+  const symbols = data.symbols.filter((symbol) => symbol.symbol.toLowerCase().includes('usdc') && symbol.isSpotTradingAllowed === true && symbol.isMarginTradingAllowed === true);
+  return symbols.map((symbol) => ({
+    symbol: symbol.symbol.toUpperCase(), 
+    asset: symbol.baseAsset, 
+    precision: symbol.quoteAssetPrecision
+  }));
 }
 
 // Function to fetch daily kline data for a specific symbol with a specified limit of days

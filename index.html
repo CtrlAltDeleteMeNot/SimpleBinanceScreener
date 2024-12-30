@@ -4,81 +4,185 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Binance screener</title>
+  <title>ScreenR</title>
+  <link rel="stylesheet" href="css/pico.min.css">
+  <link rel="stylesheet" href="css/cryptofont.min.css">
+  <script src="js/binance_api.js"></script>
+  <script src="js/constants.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-
-    table {
+    /* Fixed Header Styles */
+    .fixed-header {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      border-collapse: collapse;
+      z-index: 1000;
+      background-color: var(--background);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: var(--pico-spacing);
+      backdrop-filter: blur(1rem);
     }
 
-    th,
-    td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
+    main {
+      margin-top: 10rem;
+      padding: 1rem;
     }
 
-    th {
-      background-color: #f4f4f4;
+    .crypto-icon {
+      font-size: 2rem;
+      /* Adjust size */
+      color: var(--pico-background-color);
+      background-color: var(--pico-primary);
+      border-color: var(--pico-primary);
+      /* Background color */
+      border-radius: 50%;
+      /* Make it a circle */
+      width: 3rem;
+      /* Width of the circle */
+      height: 3rem;
+      /* Height of the circle */
+      display: inline-flex;
+      /* Center content inside */
+      align-items: center;
+      /* Center content vertically */
+      justify-content: center;
+      
     }
 
-    .filter-container {
-      margin: 20px 0;
+    .screener-results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     }
 
-    .filter-dropdown,
-    .refresh-button {
-      padding: 10px 20px;
-      margin-right: 10px;
-      font-size: 16px;
+    .card-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    .refresh-button {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
+    .card-info {
+      flex-grow: 1;
+      margin-left: 10px;
+      display: flex;
+      flex-direction: column;
     }
 
-    .refresh-button:hover {
-      background-color: #45a049;
+    .card-info h3 {
+      margin-bottom: 0;
+    }
+
+    .card-info p {
+      margin-bottom: 0;
+    }
+
+    .card-info .up {
+      color: green;
+    }
+
+    .card-info .down {
+      color: red;
+    }
+
+    .cf-generic {
+      font-family: 'CryptoFont';
+      content: '\e900';
+      /* Replace with the Unicode for a generic crypto icon in CryptoFont */
+      font-size: 32px;
+      color: gray;
     }
   </style>
-  <script src="js/price_monitor.js"></script>
 </head>
 
 <body>
-  <h1>Binance screener</h1>
-  <div class="filter-container">
-    <select id="filter-dropdown" class="filter-dropdown">
-      <option value="DailyGrowthPlus05">Min 5% Growth</option>
-      <option value="DailyGrowthPlus10">Min 10% Growth</option>
-      <option value="ThreeConsecutiveRedDays">Three consecutive red days</option>
-      <option value="FourConsecutiveRedDays">Four consecutive red days</option>
-      <option value="all">Show All</option>
-    </select>
-    <button id="refresh-button" class="refresh-button" onclick="refresh()">Refresh Data</button>
-  </div>
-  <table id="data-table">
-    <thead>
-      <tr>
-        <th>Symbol</th>
-        <th>Open</th>
-        <th>Close</th>
-        <th>Daily Change (%)</th>
-      </tr>
-    </thead>
-    <tbody>
+  <header class="is-fixed-above-lg is-fixed fixed-header">
+    <nav style="flex-direction: column;">
+      <h1>ScreenR</h1>
+      <div role="group">
+        <select id="filter-dropdown" class="filter-dropdown"></select>
+        <button id="refresh-button" class="refresh-button" onclick="refresh()">Refresh</button>
+      </div>
+    </nav>
+  </header>
+  <main class="container">
+
+    <div id="screener-grid-results" class="grid screener-results">
       <!-- Data will be dynamically inserted here -->
-    </tbody>
-  </table>
+
+      <div style="display: none;">
+        <article class="card">
+          <div class="card-row">
+            <i class="cf cf-btc crypto-icon"></i>
+            <div class="card-info">
+              <h3>Bitcoin (BTC)</h3>
+              <p class="price-info">
+                $25,000 (<span class="up">+5.2%</span>)
+              </p>
+            </div>
+            <button class="outline contrast">Details</button>
+          </div>
+        </article>
+      </div>
+
+    </div>
+
+  </main>
+
+
 
   <script>
+    if (typeof (Worker) === "undefined") {
+      console.log("No web worker support.");
+
+    } else {
+      worker = new Worker("js/worker.js");
+      worker.onmessage = function (event) {
+        populateUi(event.data);
+        unlockUi();
+      };
+    }
+
+
+
+    function initUi() {
+      const filterDropdown = document.getElementById('filter-dropdown');
+      var knownFilters = Filter.KnownFilters();
+      knownFilters.forEach(element => {
+        filterDropdown.innerHTML += `<option value="${element.idx}">${element.name}</option>`
+      });
+    }
+
+    function clearUi(data) {
+      const screenerResults = document.getElementById('screener-grid-results');
+      screenerResults.innerHTML = '';
+    }
+
+    function populateUi(data) {
+      if (data.success === true) {
+        const screenerResults = document.getElementById('screener-grid-results');
+        for (const item of data.data) {
+          const div = document.createElement('div');
+          div.innerHTML =
+            `
+            <article class="card">
+            <div class="card-row">
+              <i class="cf cf-${item.name.toLowerCase()} crypto-icon"></i>
+              <div class="card-info">
+                <h3>${item.name}</h3>
+                <p class="price-info">
+                  ${item.close} ( <span class="${item.changePercent > 0 ? 'up' : 'down'}">${item.changePercent} %</span> )
+                </p>
+              </div>
+              <button class="outline contrast">Details</button>
+            </div>
+          </article>
+            `;
+          screenerResults.appendChild(div);
+        }
+      } else {
+        alert(data.data);
+      }
+    }
+
 
     function lockUi() {
       const refreshButton = document.getElementById('refresh-button');
@@ -91,76 +195,21 @@
     function unlockUi() {
       const refreshButton = document.getElementById('refresh-button');
       refreshButton.disabled = false; // Re-enable the button
-      refreshButton.textContent = 'Refresh Data'; // Restore button text
+      refreshButton.textContent = 'Refresh'; // Restore button text
       const filterDropdown = document.getElementById('filter-dropdown');
       filterDropdown.disabled = false; // Re-enable the button
     }
 
-    async function refresh() {
+    function refresh() {
+      clearUi();
       lockUi();
-      const symbols = await fetchUSDCTradingPairs();
-      const tableBody = document.querySelector('#data-table tbody');
-      tableBody.innerHTML = '';
       const filterDropdown = document.getElementById('filter-dropdown');
-      const selectedFilter = filterDropdown.value; // Get the selected filter value
-      for (const symbol of symbols) {
-        try {
-          const klines = await fetchDailyKlines(symbol, 30);
-          const last = klines.length - 1;
-          const { open, close } = klines[last];
-          const changePercent = ((close - open) / open * 100).toFixed(2);
-          if (selectedFilter == 'DailyGrowthPlus05' && changePercent < 5) {
-            continue;
-          }
-          if (selectedFilter == 'DailyGrowthPlus10' && changePercent < 10) {
-            continue;
-          }
-          if (selectedFilter === "FourConsecutiveRedDays") {
-            // Skip if less than 5 days, maybe it's a new coin
-            if (klines.length < 5) {
-              continue;
-            }
-            // Check for four consecutive red days
-            const consecutiveRedDays = klines
-              .slice(-5, -1) // Get the last 4 days excluding the most recent day
-              .filter(day => day.close < day.open).length; // Count red days using a lambda function
-
-            if (consecutiveRedDays < 4) {
-              continue;
-            }
-          }
-
-          if (selectedFilter === "ThreeConsecutiveRedDays") {
-            // Skip if less than 4 days, maybe it's a new coin
-            if (klines.length < 4) {
-              continue;
-            }
-            // Check for four consecutive red days
-            const consecutiveRedDays = klines
-              .slice(-4, -1) // Get the last 3 days excluding the most recent day
-              .filter(day => day.close < day.open).length; // Count red days using a lambda function
-
-            if (consecutiveRedDays < 3) {
-              continue;
-            }
-          }
-
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${symbol.toUpperCase()}</td>
-            <td>${open.toFixed(2)}</td>
-            <td>${close.toFixed(2)}</td>
-            <td>${changePercent}%</td>
-          `;
-          tableBody.appendChild(row);
-        } catch (error) {
-          console.error(`Error fetching kline for ${symbol}:`, error);
-        }
-      }
-      unlockUi();
+      const filterIdx = filterDropdown.value;
+      const filter = Filter.FindByIdx(filterIdx);
+      worker.postMessage({ fetchThenApplyFilter: filter });
     }
 
-    // Initial load
+    initUi();
     refresh();
   </script>
 </body>
