@@ -28,24 +28,8 @@
     }
 
     .crypto-icon {
-      /*
-      font-size: 2rem;
-      
-      color: var(--pico-background-color);
-      background-color: var(--pico-background-color);
-      border-color: var(--pico-primary);
-      border-style: none;
-      
-      border-radius: 50%;
-      
-      
-      
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;*/
       width: 2.7rem;
       height: 2.7rem;
-      
     }
 
     .screener-results {
@@ -64,24 +48,36 @@
     .card-info {
       flex-grow: 1;
       margin-left: 10px;
+      margin-right: 10px;
       display: flex;
       flex-direction: column;
     }
 
-    .card-info h3 {
+    .card-info .base-asset {
       margin-bottom: 0;
     }
 
-    .card-info p {
+    .card-info .base-asset-details {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-info .base-asset-details-price {
       margin-bottom: 0;
     }
 
-    .card-info .up {
-      color: green;
+    .card-info .base-asset-details-percent-change {
+      margin-bottom: 0;
     }
 
-    .card-info .down {
-      color: red;
+    .color-percent-change-up{
+      color: var(--pico-form-element-valid-active-border-color);
+    }
+
+    .color-percent-change-down{
+      color: var(--pico-form-element-invalid-active-border-color);
     }
   </style>
 </head>
@@ -106,10 +102,11 @@
           <div class="card-row">
             <img src="img/btcxxx.svg" onerror="useFallbackIcon(this)" class="crypto-icon"></img>
             <div class="card-info">
-              <h3>Bitcoin (BTC)</h3>
-              <p class="price-info">
-                $25,000 (<span class="up">+5.2%</span>)
-              </p>
+              <h3 class="base-asset">Bitcoin (BTC)</h3>
+              <div class="base-asset-details">
+                <p class="base-asset-details-price">$25,000</p>
+                <p class="base-asset-details-percent-change">+3%</p>
+              </div>
             </div>
             <button class="outline contrast">Details</button>
           </div>
@@ -154,16 +151,19 @@
         const screenerResults = document.getElementById('screener-grid-results');
         for (const item of data.data) {
           const div = document.createElement('div');
+          const signum = item.changePercent > 0 ? "&#x25B2;" : "&#x25BC;";
+          const colorClass = item.changePercent > 0 ? "color-percent-change-up" : "color-percent-change-down"; 
           div.innerHTML =
             `
             <article class="card">
             <div class="card-row">
               <img src="img/${item.name.toLowerCase()}.svg" onerror="useFallbackIcon(this)" class="crypto-icon"></img>
               <div class="card-info">
-                <h3>${item.name}</h3>
-                <p class="price-info">
-                  ${item.close}  <span class="${item.changePercent > 0 ? 'up">&nbsp;&nbsp;&#x25B2;+' : 'down">&nbsp;&nbsp;&#x25BC;'}${item.changePercent} %</span> 
-                </p>
+                <h3 class="base-asset">${item.name}</h3>
+                 <div class="base-asset-details">
+                  <p class="base-asset-details-price">${item.close}</p>
+                  <p class="base-asset-details-percent-change ${colorClass}">${signum}${item.changePercent} %</p>
+                </div>
               </div>
               <button class="outline contrast">Details</button>
             </div>
@@ -202,7 +202,7 @@
       worker.postMessage({ fetchThenApplyFilter: filter });
     }
 
-    function useFallbackIcon(e){
+    function useFallbackIcon(e) {
       e.src = "img/fallback.svg";
     }
 
