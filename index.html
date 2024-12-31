@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ScreenR</title>
   <link rel="stylesheet" href="css/pico.min.css">
-  <link rel="stylesheet" href="css/cryptofont.min.css">
   <script src="js/binance_api.js"></script>
   <script src="js/constants.js"></script>
   <style>
@@ -29,29 +28,31 @@
     }
 
     .crypto-icon {
+      /*
       font-size: 2rem;
-      /* Adjust size */
+      
       color: var(--pico-background-color);
-      background-color: var(--pico-primary);
+      background-color: var(--pico-background-color);
       border-color: var(--pico-primary);
-      /* Background color */
+      border-style: none;
+      
       border-radius: 50%;
-      /* Make it a circle */
-      width: 3rem;
-      /* Width of the circle */
-      height: 3rem;
-      /* Height of the circle */
+      
+      
+      
       display: inline-flex;
-      /* Center content inside */
       align-items: center;
-      /* Center content vertically */
-      justify-content: center;
+      justify-content: center;*/
+      width: 2.7rem;
+      height: 2.7rem;
       
     }
 
     .screener-results {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      column-gap: 0.2rem;
+      row-gap: 0.1rem;
     }
 
     .card-row {
@@ -82,14 +83,6 @@
     .card-info .down {
       color: red;
     }
-
-    .cf-generic {
-      font-family: 'CryptoFont';
-      content: '\e900';
-      /* Replace with the Unicode for a generic crypto icon in CryptoFont */
-      font-size: 32px;
-      color: gray;
-    }
   </style>
 </head>
 
@@ -111,7 +104,7 @@
       <div style="display: none;">
         <article class="card">
           <div class="card-row">
-            <i class="cf cf-btc crypto-icon"></i>
+            <img src="img/btcxxx.svg" onerror="useFallbackIcon(this)" class="crypto-icon"></img>
             <div class="card-info">
               <h3>Bitcoin (BTC)</h3>
               <p class="price-info">
@@ -165,11 +158,11 @@
             `
             <article class="card">
             <div class="card-row">
-              <i class="cf cf-${item.name.toLowerCase()} crypto-icon"></i>
+              <img src="img/${item.name.toLowerCase()}.svg" onerror="useFallbackIcon(this)" class="crypto-icon"></img>
               <div class="card-info">
                 <h3>${item.name}</h3>
                 <p class="price-info">
-                  ${item.close} ( <span class="${item.changePercent > 0 ? 'up' : 'down'}">${item.changePercent} %</span> )
+                  ${item.close}  <span class="${item.changePercent > 0 ? 'up">&nbsp;&nbsp;&#x25B2;+' : 'down">&nbsp;&nbsp;&#x25BC;'}${item.changePercent} %</span> 
                 </p>
               </div>
               <button class="outline contrast">Details</button>
@@ -207,6 +200,10 @@
       const filterIdx = filterDropdown.value;
       const filter = Filter.FindByIdx(filterIdx);
       worker.postMessage({ fetchThenApplyFilter: filter });
+    }
+
+    function useFallbackIcon(e){
+      e.src = "img/fallback.svg";
     }
 
     initUi();
