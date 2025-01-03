@@ -121,9 +121,71 @@ class Ta {
             .every(day => day.close < day.open);
     }
 
-    static ChangePercent(kline) {
-        const changePercent = ((kline.close - kline.open) / kline.open * 100).toFixed(2);
-        return changePercent;
+    static ChangePercent(klines, offset) {
+        if (!Array.isArray(klines) || klines.length === 0) {
+            throw new Error("Klines array is empty or invalid");
+        }
+
+        if(offset > 0){
+            throw new Error("Positive offset are not allowed");
+        }
+    
+        // Normalize offset for negative values
+        const index = klines.length - 1 + offset;
+    
+        // Validate index range
+        if (index < 0 || index >= klines.length) {
+            throw new Error("Offset is out of bounds");
+        }
+    
+        const kline = klines[index];
+    
+        // Check if the kline has valid open and close prices
+        if (typeof(kline.open) !== 'number' || typeof(kline.close) !== 'number') {
+            throw new Error("Invalid kline data");
+        }
+    
+        const changePercent = ((kline.close - kline.open) / kline.open * 100);
+        return parseFloat(changePercent.toFixed(2));
+    }
+
+    static HasLongLowerShadow(klines, offset) {
+        if (!Array.isArray(klines) || klines.length === 0) {
+            throw new Error("Klines array is empty or invalid");
+        }
+
+        if(offset > 0){
+            throw new Error("Positive offset are not allowed");
+        }
+    
+        // Normalize offset for negative values
+        const index = klines.length - 1 + offset;
+    
+        // Validate index range
+        if (index < 0 || index >= klines.length) {
+            throw new Error("Offset is out of bounds");
+        }
+    
+        const kline = klines[index];
+    
+        // Check if the kline has valid open and close prices
+        if (typeof(kline.open) !== 'number' || typeof(kline.close) !== 'number' || typeof(kline.high) !== 'number' || typeof(kline.low) !== 'number' ) {
+            throw new Error("Invalid kline data");
+        }
+
+        // kline is an object with { open, high, low, close }
+        const { open, high, low, close } = kline;
+
+        // Calculate components
+        const realBody = Math.abs(close - open);
+        const lowerShadow = Math.min(open, close) - low;
+        const upperShadow = high - Math.max(open, close);
+
+        // Hammer criteria
+        const isLowerShadowLong = lowerShadow >= 1.8 * realBody;
+        const isUpperShadowSmall = upperShadow <= lowerShadow;
+
+        return isLowerShadowLong && isUpperShadowSmall;
     }
 }
 

@@ -26,14 +26,29 @@ async function fetchThenFilter(filter) {
     var to_return = [];
     for (const symbolWithKlines of klinesData) {
         const klines = symbolWithKlines.klines;
-        const last = klines.length - 1;
-        const kline_last = klines[last];
-        const changePercent = Ta.ChangePercent(kline_last);
-        const hasFourConsecutiveRedDays = Ta.HasConsecutiveRedDays(klines, 4);
+        if (!Array.isArray(klines)) {
+            continue;
+        }
+        if (klines.length < 1) {
+            continue;
+        }
+
         const close_array = symbolWithKlines.klines.map(k => k.close);
+        let change_percent = null;
         let arr_sma_200 = null;
         let arr_sma_050 = null;
         let arr_rsi_002 = null;
+        let four_red_days = null;
+        let long_lower_shadow_detected = null;
+        if (klines.length >= 4) {
+            four_red_days = Ta.HasConsecutiveRedDays(klines, 4);
+        }
+        if (klines.length >= 2) {
+            long_lower_shadow_detected = Ta.HasLongLowerShadow(klines, -1);
+        }
+        if (klines.length > 0) {
+            change_percent = Ta.ChangePercent(klines, 0);
+        }
         if (close_array.length > 200) {
             arr_sma_200 = Ta.Sma(close_array, 200, false);
         }
@@ -43,18 +58,19 @@ async function fetchThenFilter(filter) {
         if (close_array.length > 2) {
             arr_rsi_002 = Ta.Rsi(close_array, 2, false);
         }
-        const rsi_002 = arr_rsi_002!=null?arr_rsi_002.slice(-1): null;
-        const sma_050 = arr_sma_050!=null?arr_sma_050.slice(-1): null;
-        const sma_200 = arr_sma_200!=null?arr_sma_200.slice(-1): null;
+        const rsi_002 = arr_rsi_002 != null ? arr_rsi_002.slice(-1)[0] : null;
+        const sma_050 = arr_sma_050 != null ? arr_sma_050.slice(-1)[0] : null;
+        const sma_200 = arr_sma_200 != null ? arr_sma_200.slice(-1)[0] : null;
         var obj = {
             name: symbolWithKlines.symbol.asset,
-            changePercent: changePercent,
-            hasFourConsecutiveRedDays: hasFourConsecutiveRedDays,
-            open: kline_last.open,
-            close: parseFloat(kline_last.close),
+            changePercent: change_percent,
+            hasFourConsecutiveRedDays: four_red_days,
+            open: klines[klines.length - 1].open,
+            close: parseFloat(klines[klines.length - 1].close),
             rsi_002: rsi_002,
             sma_200: sma_200,
-            sma_050: sma_050
+            sma_050: sma_050,
+            long_lower_shadow_detected: long_lower_shadow_detected
         };
         if (applyFilter(filter, obj)) {
             to_return.push(obj);
@@ -75,11 +91,13 @@ function applyFilter(filter, obj) {
         case Filter.FourRedDays.idx:
             return obj.hasFourConsecutiveRedDays;
         case Filter.Rsi2LessThan5.idx:
-            return obj.rsi_002!==null && obj.rsi_002 < 5;
+            return obj.rsi_002 !== null && obj.rsi_002 < 5;
         case Filter.AboveSma200.idx:
-            return obj.sma_200!==null && obj.sma_200 < obj.close;
+            return obj.sma_200 !== null && obj.sma_200 < obj.close;
         case Filter.Sma50AboveSma200.idx:
-                return obj.sma_200!==null && obj.sma_200 < obj.close && obj.sma_050 > obj.sma_200;
+            return obj.sma_200 !== null && obj.sma_200 < obj.close && obj.sma_050 > obj.sma_200;
+        case Filter.LongLowerShadow.idx:
+            return obj.long_lower_shadow_detected === true;
         default:
             throw new Error("Unknown filter.");
     }

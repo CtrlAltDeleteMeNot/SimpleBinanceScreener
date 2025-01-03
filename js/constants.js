@@ -6,6 +6,7 @@ class Filter {
     static Rsi2LessThan5 = new Filter('RSI(2) less than 5', 5);
     static AboveSma200 = new Filter('Price above SMA(200)', 6);
     static Sma50AboveSma200 = new Filter('SMA(50) above SMA(200)', 7);
+    static LongLowerShadow = new Filter('Long lower shadow', 8);
 
     constructor(name, idx) {
         this.name = name;
