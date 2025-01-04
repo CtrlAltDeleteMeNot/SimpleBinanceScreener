@@ -40,11 +40,20 @@ async function fetchThenFilter(filter) {
         let arr_rsi_002 = null;
         let four_red_days = null;
         let long_lower_shadow_detected = null;
+        let long_upper_shadow_detected = null;
+        let macd_12_26_arr = null;
+
         if (klines.length >= 4) {
             four_red_days = Ta.HasConsecutiveRedDays(klines, 4);
         }
+        if (klines.length >= 35) {
+            macd_12_26_arr = Ta.CalculateMACD(close_array, 12, 26, 9, false);
+        }
         if (klines.length >= 2) {
             long_lower_shadow_detected = Ta.HasLongLowerShadow(klines, -1);
+        }
+        if (klines.length >= 2) {
+            long_upper_shadow_detected = Ta.HasLongUpperShadow(klines, -1);
         }
         if (klines.length > 0) {
             change_percent = Ta.ChangePercent(klines, 0);
@@ -61,6 +70,7 @@ async function fetchThenFilter(filter) {
         const rsi_002 = arr_rsi_002 != null ? arr_rsi_002.slice(-1)[0] : null;
         const sma_050 = arr_sma_050 != null ? arr_sma_050.slice(-1)[0] : null;
         const sma_200 = arr_sma_200 != null ? arr_sma_200.slice(-1)[0] : null;
+        const macd_12_26 = macd_12_26_arr != null ? macd_12_26_arr.slice(-1)[0]: null;
         var obj = {
             name: symbolWithKlines.symbol.asset,
             changePercent: change_percent,
@@ -70,7 +80,9 @@ async function fetchThenFilter(filter) {
             rsi_002: rsi_002,
             sma_200: sma_200,
             sma_050: sma_050,
-            long_lower_shadow_detected: long_lower_shadow_detected
+            long_lower_shadow_detected: long_lower_shadow_detected,
+            long_upper_shadow_detected: long_upper_shadow_detected,
+            macd_12_26: macd_12_26
         };
         if (applyFilter(filter, obj)) {
             to_return.push(obj);
@@ -98,6 +110,12 @@ function applyFilter(filter, obj) {
             return obj.sma_200 !== null && obj.sma_200 < obj.close && obj.sma_050 > obj.sma_200;
         case Filter.LongLowerShadow.idx:
             return obj.long_lower_shadow_detected === true;
+        case Filter.LongUpperShadow.idx:
+            return obj.long_upper_shadow_detected === true;
+        case Filter.MacdBuySignal.idx:
+            return obj.macd_12_26 !==null && obj.macd_12_26.buySignal === true;
+        case Filter.MacdSellSignal.idx:
+            return obj.macd_12_26 !==null && obj.macd_12_26.sellSignal === true;
         default:
             throw new Error("Unknown filter.");
     }

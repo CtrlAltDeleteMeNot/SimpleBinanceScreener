@@ -6,92 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ScreenR</title>
   <link rel="stylesheet" href="css/pico.min.css">
+  <link rel="stylesheet" href="css/style.css">
   <script src="js/binance_api.js"></script>
   <script src="js/constants.js"></script>
-  <style>
-    /* Fixed Header Styles */
-    .fixed-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 1000;
-      background-color: var(--background);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      padding: var(--pico-spacing);
-      backdrop-filter: blur(1rem);
-    }
-
-    main {
-      margin-top: 10rem;
-      padding: 1rem;
-    }
-
-    .crypto-icon {
-      width: 2.7rem;
-      height: 2.7rem;
-    }
-
-    .screener-results {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      /*column-gap: 0.2rem;*/
-      row-gap: 0.1rem;
-    }
-
-    @media only screen and (max-width: 600px) {
-      .screener-results {
-        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-      }
-    }
-
-    .card-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .card-info {
-      flex-grow: 1;
-      margin-left: 10px;
-      margin-right: 10px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card-info .base-asset {
-      margin-bottom: 0;
-    }
-
-    .card-info .base-asset-details {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .card-info .base-asset-details-price {
-      margin-bottom: 0;
-    }
-
-    .card-info .base-asset-details-percent-change {
-      margin-bottom: 0;
-    }
-
-    .color-percent-change-up {
-      color: var(--pico-form-element-valid-active-border-color);
-    }
-
-    .color-percent-change-down {
-      color: var(--pico-form-element-invalid-active-border-color);
-    }
-  </style>
 </head>
 
 <body>
   <header class="is-fixed-above-lg is-fixed fixed-header">
     <nav style="flex-direction: column;">
-      <h1>ScreenR</h1>
+      <div class="header-row">
+        <h1>ScreenR</h1>
+        <button id="info-button" class="outline contrast" onclick="openInfoDialog()">&#9432;</button>
+      </div>
       <div role="group">
         <select id="filter-dropdown" class="filter-dropdown"></select>
         <button id="refresh-button" class="refresh-button" onclick="refresh()">Refresh</button>
@@ -99,6 +25,30 @@
     </nav>
   </header>
   <main class="container">
+
+    <dialog id="info-dialog">
+      <article>
+        <header>
+          <button aria-label="Close" rel="prev" onclick="closeInfoDialog()"></button>
+          <p>
+            <strong>Thank you for using ScreenR!</strong>
+          </p>
+        </header>
+        <p>ScreenR is the ideal companion for crypto traders looking to focus on USDC pairs. Stay ahead of the market and make confident trades with ScreenR by your side.</p>
+        <p>
+          Here are some useful links to learn more about me:
+        </p>
+        <ul>
+          <li><a href="https://www.linkedin.com/in/gabriel-apostol/" target="_blank">LinkedIn</a></li>
+          <li><a href="https://github.com/CtrlAltDeleteMeNot/" target="_blank">GitHub</a></li>
+          <li><a href="http://revolut.me/gabriem02s" target="_blank">Donate</a></li>
+        </ul>
+        <footer>
+          <button class="secondary" onclick="closeInfoDialog()">Close</button>
+        </footer>
+      </article>
+    </dialog>
+
 
     <div id="screener-grid-results" class="grid screener-results">
       <!-- Data will be dynamically inserted here -->
@@ -211,6 +161,17 @@
     function useFallbackIcon(e) {
       e.src = "img/fallback.svg";
     }
+
+    function openInfoDialog() {
+      const dialog = document.getElementById("info-dialog");
+      dialog.showModal();
+    }
+
+    function closeInfoDialog() {
+      const dialog = document.getElementById("info-dialog");
+      dialog.close();
+    }
+
 
     initUi();
     refresh();

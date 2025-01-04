@@ -1,6 +1,15 @@
 class Ta {
     static Ema(data, periods, isLastPeriodClosed = true) {
         // Validate data length
+        // Validate input
+        if (!Array.isArray(data) || data.length === 0) {
+            throw new Error("Data must be a non-empty array.");
+        }
+        if (!Number.isInteger(periods) || periods <= 0) {
+            throw new Error("Periods must be a positive integer.");
+        }
+
+        // Validate data length
         const requiredDataLength = isLastPeriodClosed ? periods : periods + 1;
         if (data.length < requiredDataLength) {
             throw new Error(
@@ -11,23 +20,74 @@ class Ta {
         // Exclude the last day if it's not closed
         const filteredData = isLastPeriodClosed ? data : data.slice(0, -1);
 
-        // Multiplier for EMA smoothing
+        // Calculate the EMA multiplier
         const multiplier = 2 / (periods + 1);
 
         // Initialize EMA with SMA for the first period
         let ema = filteredData.slice(0, periods).reduce((sum, val) => sum + val, 0) / periods;
-        const emaValues = Array(periods - 1).fill(null); // Fill initial values with null
 
-        // Push the first EMA value
-        emaValues.push(ema);
+        // Create an array to store EMA values
+        const emaValues = Array(periods - 1).fill(null); // Fill initial values with null
+        emaValues.push(ema); // Add the first EMA value
 
         // Calculate subsequent EMA values
         for (let i = periods; i < filteredData.length; i++) {
             ema = (filteredData[i] - ema) * multiplier + ema;
             emaValues.push(ema);
         }
-
         return emaValues;
+    }
+
+    // Calculate MACD, Signal Line, Histogram, and Signals
+    static CalculateMACD(data, shortPeriod = 12, longPeriod = 26, signalPeriod = 9, includeLastPeriod = true) {
+        if (!Array.isArray(data) || data.length < longPeriod) {
+            throw new Error(`Not enough data to calculate MACD. Requires at least ${longPeriod} data points.`);
+        }
+
+        // Exclude the last candlestick if includeLastPeriod is false
+        const filteredData = includeLastPeriod ? data : data.slice(0, -1);
+
+        // Calculate short-term and long-term EMAs
+        const shortEMA = this.Ema(filteredData, shortPeriod, true);
+        const longEMA = this.Ema(filteredData, longPeriod, true);
+
+        // Calculate MACD Line
+        const macdLine = shortEMA.map((short, i) =>
+            short !== null && longEMA[i] !== null ? short - longEMA[i] : null
+        );
+
+        // Calculate Signal Line
+        const signalLine = this.Ema(macdLine.filter(val => val !== null), signalPeriod);
+
+        // Align Signal Line with MACD Line (add leading nulls)
+        const alignedSignalLine = Array(longPeriod - 1).fill(null).concat(signalLine);
+
+        // Calculate Histogram and Signals
+        const macdData = macdLine.map((macd, i) => {
+            if (macd === null || alignedSignalLine[i] === null) {
+                return { macd: null, signal: null, histogram: null, signalType: null };
+            }
+
+            const signal = alignedSignalLine[i];
+            const histogram = macd - signal;
+
+            let buySignal = false;
+            let sellSignal = false;
+            if (i > 0 && macdLine[i - 1] !== null && alignedSignalLine[i - 1] !== null) {
+                // Buy Signal: MACD crosses above Signal Line
+                if (macdLine[i - 1] < alignedSignalLine[i - 1] && macd > signal) {
+                    buySignal = true;
+                }
+                // Sell Signal: MACD crosses below Signal Line
+                else if (macdLine[i - 1] > alignedSignalLine[i - 1] && macd < signal) {
+                    sellSignal = true;
+                }
+            }
+
+            return { macd, signal, histogram, buySignal, sellSignal };
+        });
+
+        return macdData;
     }
 
 
@@ -126,25 +186,25 @@ class Ta {
             throw new Error("Klines array is empty or invalid");
         }
 
-        if(offset > 0){
+        if (offset > 0) {
             throw new Error("Positive offset are not allowed");
         }
-    
+
         // Normalize offset for negative values
         const index = klines.length - 1 + offset;
-    
+
         // Validate index range
         if (index < 0 || index >= klines.length) {
             throw new Error("Offset is out of bounds");
         }
-    
+
         const kline = klines[index];
-    
+
         // Check if the kline has valid open and close prices
-        if (typeof(kline.open) !== 'number' || typeof(kline.close) !== 'number') {
+        if (typeof (kline.open) !== 'number' || typeof (kline.close) !== 'number') {
             throw new Error("Invalid kline data");
         }
-    
+
         const changePercent = ((kline.close - kline.open) / kline.open * 100);
         return parseFloat(changePercent.toFixed(2));
     }
@@ -154,22 +214,22 @@ class Ta {
             throw new Error("Klines array is empty or invalid");
         }
 
-        if(offset > 0){
+        if (offset > 0) {
             throw new Error("Positive offset are not allowed");
         }
-    
+
         // Normalize offset for negative values
         const index = klines.length - 1 + offset;
-    
+
         // Validate index range
         if (index < 0 || index >= klines.length) {
             throw new Error("Offset is out of bounds");
         }
-    
+
         const kline = klines[index];
-    
+
         // Check if the kline has valid open and close prices
-        if (typeof(kline.open) !== 'number' || typeof(kline.close) !== 'number' || typeof(kline.high) !== 'number' || typeof(kline.low) !== 'number' ) {
+        if (typeof (kline.open) !== 'number' || typeof (kline.close) !== 'number' || typeof (kline.high) !== 'number' || typeof (kline.low) !== 'number') {
             throw new Error("Invalid kline data");
         }
 
@@ -186,6 +246,45 @@ class Ta {
         const isUpperShadowSmall = upperShadow <= lowerShadow;
 
         return isLowerShadowLong && isUpperShadowSmall;
+    }
+
+    static HasLongUpperShadow(klines, offset) {
+        if (!Array.isArray(klines) || klines.length === 0) {
+            throw new Error("Klines array is empty or invalid");
+        }
+
+        if (offset > 0) {
+            throw new Error("Positive offset are not allowed");
+        }
+
+        // Normalize offset for negative values
+        const index = klines.length - 1 + offset;
+
+        // Validate index range
+        if (index < 0 || index >= klines.length) {
+            throw new Error("Offset is out of bounds");
+        }
+
+        const kline = klines[index];
+
+        // Check if the kline has valid open and close prices
+        if (typeof (kline.open) !== 'number' || typeof (kline.close) !== 'number' || typeof (kline.high) !== 'number' || typeof (kline.low) !== 'number') {
+            throw new Error("Invalid kline data");
+        }
+
+        // kline is an object with { open, high, low, close }
+        const { open, high, low, close } = kline;
+
+        // Calculate components
+        const realBody = Math.abs(close - open);
+        const lowerShadow = Math.min(open, close) - low;
+        const upperShadow = high - Math.max(open, close);
+
+        // Hammer criteria
+        const isUpperShadowLong = upperShadow >= 1.8 * realBody;
+        const isLowerShadowShort = upperShadow >= lowerShadow;
+
+        return isUpperShadowLong && isLowerShadowShort;
     }
 }
 
