@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
   <meta charset="UTF-8">
@@ -34,9 +34,15 @@
 
     .screener-results {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
       /*column-gap: 0.2rem;*/
       row-gap: 0.1rem;
+    }
+
+    @media only screen and (max-width: 600px) {
+      .screener-results {
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      }
     }
 
     .card-row {
@@ -72,11 +78,11 @@
       margin-bottom: 0;
     }
 
-    .color-percent-change-up{
+    .color-percent-change-up {
       color: var(--pico-form-element-valid-active-border-color);
     }
 
-    .color-percent-change-down{
+    .color-percent-change-down {
       color: var(--pico-form-element-invalid-active-border-color);
     }
   </style>
@@ -152,20 +158,20 @@
         for (const item of data.data) {
           const div = document.createElement('div');
           const signum = item.changePercent > 0 ? "&#x25B2;" : "&#x25BC;";
-          const colorClass = item.changePercent > 0 ? "color-percent-change-up" : "color-percent-change-down"; 
+          const colorClass = item.changePercent > 0 ? "color-percent-change-up" : "color-percent-change-down";
           div.innerHTML =
             `
             <article class="card">
             <div class="card-row">
               <img src="img/${item.name.toLowerCase()}.svg" onerror="useFallbackIcon(this)" class="crypto-icon"></img>
               <div class="card-info">
-                <h3 class="base-asset">${item.name}</h3>
+                <h4 class="base-asset">${item.name}</h4>
                  <div class="base-asset-details">
                   <p class="base-asset-details-price">${item.close}</p>
                   <p class="base-asset-details-percent-change ${colorClass}">${signum}${item.changePercent} %</p>
                 </div>
               </div>
-              <button class="outline contrast" onclick="window.open('https://www.investing.com/crypto/${item.name.toLowerCase()}/technical')">Details</button>
+              <button class="outline contrast" onclick="window.open('https://www.tradingview.com/symbols/${item.name}USDC/?exchange=BINANCE')">Details</button>
             </div>
           </article>
             `;
