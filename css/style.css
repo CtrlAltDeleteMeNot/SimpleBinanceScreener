@@ -12,7 +12,7 @@
 }
 
 main {
-    margin-top: 10rem;
+    margin-top: 9rem;
     padding: 1rem;
 }
 
@@ -78,7 +78,7 @@ main {
 
 .header-row {
     display: flex;
-    justify-content: space-between;
+    justify-content: start;
     /* Distribute space between h1 and button */
     align-items: center;
     /* Align items vertically */
@@ -86,9 +86,17 @@ main {
     /* Ensure it spans the full width */
 
     margin-bottom: 10px;
+    gap:10px;
 }
 
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+  }
 
-.header-row > h1{
-    margin-bottom: 0;
+.no-padding-bottom{
+    padding-bottom: 0;
 }

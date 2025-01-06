@@ -87,6 +87,7 @@ async function fetchThenFilter(filter) {
         if (applyFilter(filter, obj)) {
             to_return.push(obj);
         }
+        to_return.sort((a,b)=> a.changePercent > b.changePercent ? -1: 1);
     }
     return to_return;
 }

@@ -48,8 +48,8 @@ class Ta {
         const filteredData = includeLastPeriod ? data : data.slice(0, -1);
 
         // Calculate short-term and long-term EMAs
-        const shortEMA = this.Ema(filteredData, shortPeriod, true);
-        const longEMA = this.Ema(filteredData, longPeriod, true);
+        const shortEMA = Ta.Ema(filteredData, shortPeriod, true);
+        const longEMA = Ta.Ema(filteredData, longPeriod, true);
 
         // Calculate MACD Line
         const macdLine = shortEMA.map((short, i) =>
@@ -57,7 +57,7 @@ class Ta {
         );
 
         // Calculate Signal Line
-        const signalLine = this.Ema(macdLine.filter(val => val !== null), signalPeriod);
+        const signalLine = Ta.Ema(macdLine.filter(val => val !== null), signalPeriod);
 
         // Align Signal Line with MACD Line (add leading nulls)
         const alignedSignalLine = Array(longPeriod - 1).fill(null).concat(signalLine);

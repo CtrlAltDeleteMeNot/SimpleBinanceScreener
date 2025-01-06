@@ -12,11 +12,27 @@
 </head>
 
 <body>
-  <header class="is-fixed-above-lg is-fixed fixed-header">
+  <header class="is-fixed-above-lg is-fixed fixed-header no-padding-bottom">
     <nav style="flex-direction: column;">
       <div class="header-row">
-        <h1>ScreenR</h1>
-        <button id="info-button" class="outline contrast" onclick="openInfoDialog()">&#9432;</button>
+        <a onclick="openInfoDialog()">
+          <svg width="50" height="50" viewBox="4 4 40 40" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <style>
+                .a {
+                  fill: none;
+                  stroke: var(--pico-primary);
+                  stroke-linecap: round;
+                  stroke-linejoin: round;
+                }
+              </style>
+            </defs>
+            <polyline class="a" points="5.5 34.95 12.64 29.03 17.41 33.04 26.51 24.45 32.24 28.96 42.5 20.05" />
+            <path class="a"
+              d="M40.5,42.5H7.5a2,2,0,0,1-2-2V7.5a2,2,0,0,1,2-2h33a2,2,0,0,1,2,2v33A2,2,0,0,1,40.5,42.5Z" />
+          </svg>          
+        </a>
+        <h1 style="margin-bottom: 0;" onclick="openInfoDialog()">ScreenR</h1>
       </div>
       <div role="group">
         <select id="filter-dropdown" class="filter-dropdown"></select>
@@ -30,11 +46,12 @@
       <article>
         <header>
           <button aria-label="Close" rel="prev" onclick="closeInfoDialog()"></button>
-          <p>
-            <strong>Thank you for using ScreenR!</strong>
-          </p>
+          <h4>
+            Thank you for using ScreenR!
+          </h4>
         </header>
-        <p>ScreenR is the ideal companion for crypto traders looking to focus on USDC pairs. Stay ahead of the market and make confident trades with ScreenR by your side.</p>
+        <p>ScreenR is the ideal companion for crypto traders looking to focus on USDC pairs. Stay ahead of the market
+          and make confident trades with ScreenR by your side.</p>
         <p>
           Here are some useful links to learn more about me:
         </p>
@@ -121,7 +138,7 @@
                   <p class="base-asset-details-percent-change ${colorClass}">${signum}${item.changePercent} %</p>
                 </div>
               </div>
-              <button class="outline contrast" onclick="window.open('https://www.tradingview.com/symbols/${item.name}USDC/?exchange=BINANCE')">Details</button>
+              <button class="outline contrast" onclick="window.open('https://www.tradingview.com/symbols/${item.name}USDC/?exchange=BINANCE')">&rarr;</button>
             </div>
           </article>
             `;
