@@ -5,10 +5,13 @@
     left: 0;
     width: 100%;
     z-index: 1000;
-    background-color: var(--background);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: var(--pico-spacing);
     backdrop-filter: blur(1rem);
+    border-bottom-style: outset;
+    border-bottom-color: var(--pico-form-element-border-color);
+    border-width: 1px;
+   
 }
 
 main {
@@ -24,7 +27,6 @@ main {
 .screener-results {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    /*column-gap: 0.2rem;*/
     row-gap: 0.1rem;
 }
 
@@ -85,8 +87,8 @@ main {
     width: 100%;
     /* Ensure it spans the full width */
 
-    margin-bottom: 10px;
-    gap:10px;
+    margin-bottom: var(--pico-spacing);
+    gap:var(--pico-spacing);
 }
 
 body {
@@ -99,4 +101,13 @@ body {
 
 .no-padding-bottom{
     padding-bottom: 0;
+}
+
+.logo{
+    width: 2.7rem;
+    height: 2.7rem;
+}
+
+.logo path{
+    stroke: var(--pico-primary-background);
 }

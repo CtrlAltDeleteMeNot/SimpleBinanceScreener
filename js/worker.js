@@ -105,6 +105,8 @@ function applyFilter(filter, obj) {
             return obj.hasFourConsecutiveRedDays;
         case Filter.Rsi2LessThan5.idx:
             return obj.rsi_002 !== null && obj.rsi_002 < 5;
+        case Filter.Rsi2MoreThan95.idx:
+            return obj.rsi_002 !== null && obj.rsi_002 > 95;
         case Filter.AboveSma200.idx:
             return obj.sma_200 !== null && obj.sma_200 < obj.close;
         case Filter.Sma50AboveSma200.idx:
