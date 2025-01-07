@@ -61,14 +61,6 @@ main {
     justify-content: space-between;
 }
 
-.card-info .base-asset-details-price {
-    margin-bottom: 0;
-}
-
-.card-info .base-asset-details-percent-change {
-    margin-bottom: 0;
-}
-
 .color-percent-change-up {
     color: var(--pico-form-element-valid-active-border-color);
 }
@@ -103,11 +95,15 @@ body {
     padding-bottom: 0;
 }
 
+.no-margin-bottom{
+    margin-bottom: 0;
+}
+
 .logo{
     width: 2.7rem;
     height: 2.7rem;
 }
 
-.logo path{
+.logo svg path{
     stroke: var(--pico-primary-background);
 }
