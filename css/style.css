@@ -44,8 +44,8 @@ main {
 
 .card-info {
     flex-grow: 1;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin-left: var(--pico-spacing);
+    margin-right: var(--pico-spacing);
     display: flex;
     flex-direction: column;
 }
