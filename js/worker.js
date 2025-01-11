@@ -43,7 +43,7 @@ async function fetchThenFilter(filter) {
         let long_upper_shadow_detected = null;
         let macd_12_26_arr = null;
 
-        if (klines.length >= 4) {
+        if (klines.length >= 5) {
             four_red_days = Ta.HasConsecutiveRedDays(klines, 4);
         }
         if (klines.length >= 35) {
