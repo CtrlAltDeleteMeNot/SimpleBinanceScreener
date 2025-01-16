@@ -100,8 +100,10 @@ body {
 }
 
 .logo{
-    width: 2.7rem;
-    height: 2.7rem;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-bottom: 1.125rem;
+    margin-left: -0.5rem;
 }
 
 .logo svg path{

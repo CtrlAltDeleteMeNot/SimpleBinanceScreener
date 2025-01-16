@@ -15,14 +15,16 @@
   <header class="is-fixed-above-lg is-fixed fixed-header no-padding-bottom">
     <nav style="flex-direction: column;">
       <div class="header-row">
+        <h1 class="no-margin-bottom" onclick="openInfoDialog()">ScreenR</h1>
         <div class="logo">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M9.41185 21.6588C9.94114 21.8006 10.4719 21.8972 11 21.9509C15.7947 22.4387 20.3717 19.3931 21.6593 14.5877C23.0887 9.25308 19.9229 3.76971 14.5882 2.34029C11.9556 1.63489 9.28684 2.04857 7.0869 3.28972M12 11.9996L5.00197 6.33546C4.57285 5.98813 3.93869 6.05182 3.63599 6.5135C3.06678 7.38163 2.62413 8.35389 2.34078 9.41136C1.37322 13.0224 2.51113 16.7015 5.00197 19.1453M7.36918 8.18416C6.51383 9.22115 6.00004 10.5503 6.00004 11.9996C6.00004 15.3133 8.68633 17.9996 12 17.9996C15.3137 17.9996 18 15.3133 18 11.9996C18 11.4818 17.9345 10.9793 17.8111 10.5M10.1029 6.30568C10.6991 6.10709 11.337 5.99955 12 5.99955C13.0929 5.99955 14.1175 6.29173 15 6.80222"
-              stroke="red" stroke-width="1.5" stroke-linecap="round" />
+          <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+            x="0px" y="0px" viewBox="0 0 122.88 68.04">
+            <g>
+              <path
+                d="M2.03,56.52c-2.66,2.58-2.72,6.83-0.13,9.49c2.58,2.66,6.83,2.72,9.49,0.13l27.65-26.98l23.12,22.31 c2.67,2.57,6.92,2.49,9.49-0.18l37.77-38.22v19.27c0,3.72,3.01,6.73,6.73,6.73s6.73-3.01,6.73-6.73V6.71h-0.02 c0-1.74-0.67-3.47-2-4.78c-1.41-1.39-3.29-2.03-5.13-1.91H82.4c-3.72,0-6.73,3.01-6.73,6.73c0,3.72,3.01,6.73,6.73,6.73h17.63 L66.7,47.2L43.67,24.97c-2.6-2.5-6.73-2.51-9.33,0.03L2.03,56.52L2.03,56.52z" />
+            </g>
           </svg>
         </div>
-        <h1 class="no-margin-bottom" onclick="openInfoDialog()">ScreenR</h1>
       </div>
       <div role="group">
         <select id="filter-dropdown" class="filter-dropdown"></select>
@@ -40,7 +42,8 @@
         <ul>
           <li><a href="https://www.linkedin.com/in/gabriel-apostol/" target="_blank"
               rel="noopener noreferrer">LinkedIn</a></li>
-          <li><a href="https://github.com/CtrlAltDeleteMeNot/SimpleBinanceScreener" target="_blank" rel="noopener noreferrer">GitHub code</a></li>
+          <li><a href="https://github.com/CtrlAltDeleteMeNot/SimpleBinanceScreener" target="_blank"
+              rel="noopener noreferrer">GitHub code</a></li>
         </ul>
         <footer>
           <button class="secondary" onclick="closeInfoDialog()">Close</button>
