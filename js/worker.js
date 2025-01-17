@@ -42,6 +42,7 @@ async function fetchThenFilter(filter) {
         let long_lower_shadow_detected = null;
         let long_upper_shadow_detected = null;
         let macd_12_26_arr = null;
+        let arr_rsi_014 = null;
 
         if (klines.length >= 5) {
             four_red_days = Ta.HasConsecutiveRedDays(klines, 4);
@@ -67,7 +68,11 @@ async function fetchThenFilter(filter) {
         if (close_array.length > 2) {
             arr_rsi_002 = Ta.Rsi(close_array, 2, false);
         }
+        if (close_array.length > 14) {
+            arr_rsi_014 = Ta.Rsi(close_array, 14, false);
+        }
         const rsi_002 = arr_rsi_002 != null ? arr_rsi_002.slice(-1)[0] : null;
+        const rsi_014 = arr_rsi_014 != null ? arr_rsi_014.slice(-1)[0] : null;
         const sma_050 = arr_sma_050 != null ? arr_sma_050.slice(-1)[0] : null;
         const sma_200 = arr_sma_200 != null ? arr_sma_200.slice(-1)[0] : null;
         const macd_12_26 = macd_12_26_arr != null ? macd_12_26_arr.slice(-1)[0]: null;
@@ -78,6 +83,7 @@ async function fetchThenFilter(filter) {
             open: klines[klines.length - 1].open,
             close: parseFloat(klines[klines.length - 1].close),
             rsi_002: rsi_002,
+            rsi_014: rsi_014,
             sma_200: sma_200,
             sma_050: sma_050,
             long_lower_shadow_detected: long_lower_shadow_detected,
@@ -119,6 +125,10 @@ function applyFilter(filter, obj) {
             return obj.macd_12_26 !==null && obj.macd_12_26.buySignal === true;
         case Filter.MacdSellSignal.idx:
             return obj.macd_12_26 !==null && obj.macd_12_26.sellSignal === true;
+        case Filter.Rsi14LessThan30.idx:
+            return obj.rsi_014 !== null && obj.rsi_014 < 30;
+        case Filter.Rsi14MoreThan70.idx:
+            return obj.rsi_014 !== null && obj.rsi_014 > 70;
         default:
             throw new Error("Unknown filter.");
     }

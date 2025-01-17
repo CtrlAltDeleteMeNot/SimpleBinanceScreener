@@ -11,6 +11,8 @@ class Filter {
     static LongUpperShadow = new Filter('Long upper shadow', 9);
     static MacdBuySignal = new Filter('MACD(12,26,9) buy', 10);
     static MacdSellSignal = new Filter('MACD(12,26,9) sell', 11);
+    static Rsi14LessThan30 = new Filter('RSI(14) less than 30', 12);
+    static Rsi14MoreThan70 = new Filter('RSI(14) more than 70', 13);
 
     constructor(name, idx) {
         this.name = name;
