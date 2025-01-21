@@ -5,10 +5,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ScreenR</title>
+  <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="css/pico.min.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="js/binance_api.js"></script>
   <script src="js/constants.js"></script>
+  <script src="js/ta_lib.js"></script>
+  <script src="js/worker.js"></script>
+  <script src="js/main.js"></script>
 </head>
 
 <body>
@@ -28,7 +32,7 @@
       </div>
       <div role="group">
         <select id="filter-dropdown" class="filter-dropdown"></select>
-        <button id="refresh-button" class="refresh-button" onclick="refresh()">Refresh</button>
+        <button id="refresh-button" class="refresh-button">Refresh</button>
       </div>
     </nav>
   </header>
@@ -78,105 +82,8 @@
 
 
   <script>
-    if (typeof (Worker) === "undefined") {
-      console.log("No web worker support.");
-
-    } else {
-      worker = new Worker("js/worker.js");
-      worker.onmessage = function (event) {
-        populateUi(event.data);
-        unlockUi();
-      };
-    }
-
-
-
-    function initUi() {
-      const filterDropdown = document.getElementById('filter-dropdown');
-      var knownFilters = Filter.KnownFilters();
-      knownFilters.forEach(element => {
-        filterDropdown.innerHTML += `<option value="${element.idx}">${element.name}</option>`
-      });
-    }
-
-    function clearUi(data) {
-      const screenerResults = document.getElementById('screener-grid-results');
-      screenerResults.innerHTML = '';
-    }
-
-    function populateUi(data) {
-      if (data.success === true) {
-        const screenerResults = document.getElementById('screener-grid-results');
-        for (const item of data.data) {
-          const div = document.createElement('div');
-          const signum = item.changePercent > 0 ? "&#x25B2;" : "&#x25BC;";
-          const colorClass = item.changePercent > 0 ? "color-percent-change-up" : "color-percent-change-down";
-          div.innerHTML =
-            `
-            <article class="card">
-            <div class="card-row">
-              <img src="img/coins/${item.name.toLowerCase()}.svg" onerror="useFallbackIcon(this)" class="crypto-icon"></img>
-              <div class="card-info">
-                <h4 class="base-asset">${item.name}</h4>
-                 <div class="base-asset-details">
-                  <p class="no-margin-bottom">${item.close}</p>
-                  <p class="no-margin-bottom ${colorClass}">${signum}${item.changePercent} %</p>
-                </div>
-              </div>
-              <button class="outline contrast" onclick="window.open('https://www.tradingview.com/symbols/${item.name}USDC/?exchange=BINANCE')">&rarr;</button>
-            </div>
-          </article>
-            `;
-          screenerResults.appendChild(div);
-        }
-      } else {
-        alert(data.data);
-      }
-    }
-
-
-    function lockUi() {
-      const refreshButton = document.getElementById('refresh-button');
-      refreshButton.disabled = true; // Disable the button
-      refreshButton.textContent = 'Refreshing...'; // Update button text
-      const filterDropdown = document.getElementById('filter-dropdown');
-      filterDropdown.disabled = true; // Disable the button
-    }
-
-    function unlockUi() {
-      const refreshButton = document.getElementById('refresh-button');
-      refreshButton.disabled = false; // Re-enable the button
-      refreshButton.textContent = 'Refresh'; // Restore button text
-      const filterDropdown = document.getElementById('filter-dropdown');
-      filterDropdown.disabled = false; // Re-enable the button
-    }
-
-    function refresh() {
-      clearUi();
-      lockUi();
-      const filterDropdown = document.getElementById('filter-dropdown');
-      const filterIdx = filterDropdown.value;
-      const filter = Filter.FindByIdx(filterIdx);
-      worker.postMessage({ fetchThenApplyFilter: filter });
-    }
-
-    function useFallbackIcon(e) {
-      e.src = "img/coins/fallback.svg";
-    }
-
-    function openInfoDialog() {
-      const dialog = document.getElementById("info-dialog");
-      dialog.showModal();
-    }
-
-    function closeInfoDialog() {
-      const dialog = document.getElementById("info-dialog");
-      dialog.close();
-    }
-
-
-    initUi();
-    refresh();
+    let controller = new Controller();
+    controller.refreshData();
   </script>
 </body>
 
