@@ -9,7 +9,7 @@
         "type": "image/svg+xml"
       }
     ],
-    "start_url": "/index.html",
+    "start_url": "https://ctrlaltdeletemenot.github.io/SimpleBinanceScreener/index.html",
     "display": "standalone",
     "background_color": "#000000",
     "theme_color": "#1a1a1a",
