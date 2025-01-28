@@ -109,3 +109,8 @@ body {
 .logo svg g path{
     color: var(--pico-primary-background);
 }
+
+#asset-info-technicals td, th{
+    background-color: transparent;
+    border-block-color: transparent;
+}

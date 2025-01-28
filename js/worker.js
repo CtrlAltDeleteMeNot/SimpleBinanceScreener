@@ -38,7 +38,10 @@ async function fetchDailyUsdcCoinsFromBinanceAndComputeIndicatorValues() {
         const close_array = symbolWithKlines.klines.map(k => k.close);
         let change_percent = null;
         let arr_sma_200 = null;
+        let arr_sma_089 = null;
         let arr_sma_050 = null;
+        let arr_sma_021 = null;
+        let arr_sma_005 = null;
         let arr_rsi_002 = null;
         let four_red_days = null;
         let long_lower_shadow_detected = null;
@@ -64,8 +67,17 @@ async function fetchDailyUsdcCoinsFromBinanceAndComputeIndicatorValues() {
         if (close_array.length > 200) {
             arr_sma_200 = Ta.Sma(close_array, 200, false);
         }
+        if (close_array.length > 89) {
+            arr_sma_089 = Ta.Sma(close_array, 89, false);
+        }
         if (close_array.length > 50) {
             arr_sma_050 = Ta.Sma(close_array, 50, false);
+        }
+        if (close_array.length > 21) {
+            arr_sma_021 = Ta.Sma(close_array, 21, false);
+        }
+        if (close_array.length > 5) {
+            arr_sma_005 = Ta.Sma(close_array, 5, false);
         }
         if (close_array.length > 2) {
             arr_rsi_002 = Ta.Rsi(close_array, 2, false);
@@ -75,11 +87,15 @@ async function fetchDailyUsdcCoinsFromBinanceAndComputeIndicatorValues() {
         }
         const rsi_002 = arr_rsi_002 != null ? arr_rsi_002.slice(-1)[0] : null;
         const rsi_014 = arr_rsi_014 != null ? arr_rsi_014.slice(-1)[0] : null;
+        const sma_005 = arr_sma_005 != null ? arr_sma_005.slice(-1)[0] : null;
+        const sma_021 = arr_sma_021 != null ? arr_sma_021.slice(-1)[0] : null;
         const sma_050 = arr_sma_050 != null ? arr_sma_050.slice(-1)[0] : null;
+        const sma_089 = arr_sma_089 != null ? arr_sma_089.slice(-1)[0] : null;
         const sma_200 = arr_sma_200 != null ? arr_sma_200.slice(-1)[0] : null;
         const macd_12_26 = macd_12_26_arr != null ? macd_12_26_arr.slice(-1)[0] : null;
         var obj = {
             name: symbolWithKlines.symbol.asset,
+            precision: symbolWithKlines.symbol.precision,
             changePercent: change_percent,
             hasFourConsecutiveRedDays: four_red_days,
             open: klines[klines.length - 1].open,
@@ -87,7 +103,10 @@ async function fetchDailyUsdcCoinsFromBinanceAndComputeIndicatorValues() {
             rsi_002: rsi_002,
             rsi_014: rsi_014,
             sma_200: sma_200,
+            sma_089: sma_089,
             sma_050: sma_050,
+            sma_021: sma_021,
+            sma_005: sma_005,
             long_lower_shadow_detected: long_lower_shadow_detected,
             long_upper_shadow_detected: long_upper_shadow_detected,
             macd_12_26: macd_12_26

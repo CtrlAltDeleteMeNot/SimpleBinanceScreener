@@ -20,7 +20,7 @@
   <header class="is-fixed-above-lg is-fixed fixed-header no-padding-bottom">
     <nav style="flex-direction: column;">
       <div class="header-row">
-        <h1 class="no-margin-bottom" onclick="openInfoDialog()">ScreenR</h1>
+        <h1 class="no-margin-bottom" onclick="javascript:controller.showApplicationInfo()">ScreenR</h1>
         <div class="logo">
           <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
             x="0px" y="0px" viewBox="0 0 122.88 68.04">
@@ -39,8 +39,11 @@
   </header>
   <main class="container">
 
-    <dialog id="info-dialog">
+    <dialog id="application-info-dialog">
       <article>
+        <header>
+          <h3>About ScreenR</h3>
+        </header>
         <p>ScreenR is the ultimate companion for crypto traders focused on USDC pairs. Stay ahead of the market and make
           confident, informed trades with ScreenR by your side.</p>
         <p>Contact me for a tailored solution or see my code:</p>
@@ -51,7 +54,28 @@
               rel="noopener noreferrer">GitHub code</a></li>
         </ul>
         <footer>
-          <button class="secondary" onclick="closeInfoDialog()">Close</button>
+          <button class="secondary outline" onclick="controller.closeApplicationInfo()">Close</button>
+        </footer>
+      </article>
+    </dialog>
+
+    <dialog id="asset-info-dialog">
+      <article>
+
+        <header>
+          <div class="header-row no-margin-bottom">
+            <img id="asset-info-picture" src="img/btcxxx.svg" onerror="useFallbackIcon(this)" class="crypto-icon"></img>
+            <h3 class="no-margin-bottom" id="asset-info-name"></h3>
+          </div>
+        </header>
+        <table id="asset-info-technicals-table">
+          <tbody id="asset-info-technicals">
+
+          </tbody>
+        </table>
+        <footer>
+          <button id="asset-info-more-details-button" class="primary outline">More details</button>
+          <button class="secondary outline" onclick="controller.closeAssetInfo()">Close</button>
         </footer>
       </article>
     </dialog>

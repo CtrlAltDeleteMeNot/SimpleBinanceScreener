@@ -26,6 +26,32 @@ class Controller {
         this.model.filteredAssets.forEach((aFilteredAsset) => this.view.addScreenerResult(aFilteredAsset));
     }
 
+    closeApplicationInfo() {
+        this.view.toggleApplicationInfo(false);
+    }
+
+    showApplicationInfo() {
+        this.view.toggleApplicationInfo(true);
+    }
+
+    closeAssetInfo() {
+        this.view.toggleAssetInfo(false);
+    }
+
+    showAssetInfo(assetName) {
+        try {
+            const found = this.model.assets.find(anAsset => anAsset.name === assetName);
+            if (found === undefined) {
+                throw new Error(`Asset ${assetName} was not found.`);
+            }
+            this.view.updateAssetInfo(found);
+            this.view.toggleAssetInfo(true);
+        } catch (err) {
+            console.log(err);
+            this.view.displayError(err);
+        }
+    }
+
     async refreshData() {
         this.model.isBusy = true;
         this.view.toggleBusyState(this.model);
@@ -68,6 +94,20 @@ class View {
         //==============================================
         this.screenerResults = document.getElementById('screener-grid-results');
         this.clearScreenerResults();
+
+        //==============================================
+        // App info dialog
+        //==============================================
+        this.applicationInfoDialog = document.getElementById("application-info-dialog");
+
+        //==============================================
+        // Asset info dialog
+        //==============================================
+        this.assetInfoDialog = document.getElementById("asset-info-dialog");
+        this.assetInfoName = document.getElementById("asset-info-name");
+        this.assetInfoPicture = document.getElementById("asset-info-picture");
+        this.assetInfoMore = document.getElementById("asset-info-more-details-button");
+        this.assetInfoTechnicals = document.getElementById("asset-info-technicals");
     }
 
     addFilter(aFilter) {
@@ -110,11 +150,88 @@ class View {
                 <p class="no-margin-bottom ${colorClass}">${signum}${item.changePercent} %</p>
               </div>
             </div>
-            <button class="outline contrast" onclick="window.open('https://www.tradingview.com/symbols/${item.name}USDC/?exchange=BINANCE')">&rarr;</button>
+            <button class="outline contrast" onclick="controller.showAssetInfo('${item.name}')">&rarr;</button>
           </div>
         </article>
           `;
         this.screenerResults.appendChild(div);
+    }
+
+    toggleApplicationInfo(visible) {
+        if (visible === true) {
+            this.applicationInfoDialog.showModal();
+        }
+        else {
+            this.applicationInfoDialog.close();
+        }
+    }
+
+    toggleAssetInfo(visible) {
+        if (visible === true) {
+            this.assetInfoDialog.showModal();
+        }
+        else {
+            this.assetInfoDialog.close();
+        }
+    }
+
+    formatNumber(aNumber, aDecimalCount){
+        if(aNumber===null || aNumber===undefined){
+            return "Not available";
+        }
+        return aNumber.toFixed(aDecimalCount);
+    }
+
+    updateAssetInfo(asset) {
+        this.assetInfoName.innerHTML = asset.name;
+        this.assetInfoMore.onclick = function(){ window.open(`https://www.tradingview.com/symbols/${asset.name}USDC/?exchange=BINANCE`);};
+        this.assetInfoPicture.src = `img/coins/${asset.name.toLowerCase()}.svg`;
+        this.assetInfoTechnicals.innerHTML = `
+            <tr>
+            <th scope="row">Price</th>
+            <td>${asset.close}</td>
+            </tr>
+
+            <tr>
+            <th scope="row">Change (%)</th>
+            <td>${asset.changePercent}</td>
+            </tr>
+
+            <tr>
+            <th scope="row">RSI(2)</th>
+            <td>${this.formatNumber(asset.rsi_002, 2)}</td>
+            </tr>
+
+            <tr>
+            <th scope="row">RSI(14)</th>
+            <td>${this.formatNumber(asset.rsi_014, 2)}</td>
+            </tr>
+
+            <tr>
+            <th scope="row">SMA(200)</th>
+            <td>${this.formatNumber(asset.sma_200, asset.precision)}</td>
+            </tr>
+
+            <tr>
+            <th scope="row">SMA(89)</th>
+            <td>${this.formatNumber(asset.sma_089, asset.precision)}</td>
+            </tr>
+
+            <tr>
+            <th scope="row">SMA(50)</th>
+            <td>${this.formatNumber(asset.sma_050, asset.precision)}</td>
+            </tr>
+
+            <tr>
+            <th scope="row">SMA(21)</th>
+            <td>${this.formatNumber(asset.sma_021, asset.precision)}</td>
+            </tr>
+
+            <tr>
+            <th scope="row">SMA(5)</th>
+            <td>${this.formatNumber(asset.sma_005, asset.precision)}</td>
+            </tr>
+        `;
     }
 }
 
@@ -124,14 +241,4 @@ class View {
 
 function useFallbackIcon(e) {
     e.src = "img/coins/fallback.svg";
-}
-
-function openInfoDialog() {
-    const dialog = document.getElementById("info-dialog");
-    dialog.showModal();
-}
-
-function closeInfoDialog() {
-    const dialog = document.getElementById("info-dialog");
-    dialog.close();
 }
