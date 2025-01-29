@@ -114,3 +114,7 @@ body {
     background-color: transparent;
     border-block-color: transparent;
 }
+
+.hidden {
+    display: none;
+}

@@ -175,8 +175,8 @@ class View {
         }
     }
 
-    formatNumber(aNumber, aDecimalCount){
-        if(aNumber===null || aNumber===undefined){
+    formatNumber(aNumber, aDecimalCount) {
+        if (aNumber === null || aNumber === undefined) {
             return "Not available";
         }
         return aNumber.toFixed(aDecimalCount);
@@ -184,59 +184,26 @@ class View {
 
     updateAssetInfo(asset) {
         this.assetInfoName.innerHTML = asset.name;
-        this.assetInfoMore.onclick = function(){ window.open(`https://www.tradingview.com/symbols/${asset.name}USDC/?exchange=BINANCE`);};
+        this.assetInfoMore.onclick = function () { window.open(`https://www.tradingview.com/symbols/${asset.name}USDC/?exchange=BINANCE`); };
         this.assetInfoPicture.src = `img/coins/${asset.name.toLowerCase()}.svg`;
-        this.assetInfoTechnicals.innerHTML = `
-            <tr>
-            <th scope="row">Price</th>
-            <td>${asset.close}</td>
-            </tr>
-
-            <tr>
-            <th scope="row">Change (%)</th>
-            <td>${asset.changePercent}</td>
-            </tr>
-
-            <tr>
-            <th scope="row">RSI(2)</th>
-            <td>${this.formatNumber(asset.rsi_002, 2)}</td>
-            </tr>
-
-            <tr>
-            <th scope="row">RSI(14)</th>
-            <td>${this.formatNumber(asset.rsi_014, 2)}</td>
-            </tr>
-
-            <tr>
-            <th scope="row">SMA(200)</th>
-            <td>${this.formatNumber(asset.sma_200, asset.precision)}</td>
-            </tr>
-
-            <tr>
-            <th scope="row">SMA(89)</th>
-            <td>${this.formatNumber(asset.sma_089, asset.precision)}</td>
-            </tr>
-
-            <tr>
-            <th scope="row">SMA(50)</th>
-            <td>${this.formatNumber(asset.sma_050, asset.precision)}</td>
-            </tr>
-
-            <tr>
-            <th scope="row">SMA(21)</th>
-            <td>${this.formatNumber(asset.sma_021, asset.precision)}</td>
-            </tr>
-
-            <tr>
-            <th scope="row">SMA(5)</th>
-            <td>${this.formatNumber(asset.sma_005, asset.precision)}</td>
-            </tr>
-        `;
+        let map = [];
+        map.push({ key: "Price", value: asset.close, precision: asset.precision });
+        map.push({ key: "SMA(200)", value: asset.sma_200, precision: asset.precision });
+        map.push({ key: "SMA(89)", value: asset.sma_089, precision: asset.precision });
+        map.push({ key: "SMA(50)", value: asset.sma_050, precision: asset.precision });
+        map.push({ key: "SMA(21)", value: asset.sma_021, precision: asset.precision });
+        map.push({ key: "SMA(5)", value: asset.sma_005, precision: asset.precision });
+        map = map.filter(a => a.value !== null);
+        map.sort((a, b) => b.value - a.value);
+        map.push({ key: "RSI(2)", value: asset.rsi_002, precision: 2 });
+        map.push({ key: "RSI(14)", value: asset.rsi_014, precision: 2 });
+        map.push({ key: "Change(%)", value: asset.changePercent, precision: 2 });
+        map = map.filter(a => a.value !== null);
+        let technicalsHtml = '';
+        map.forEach(entry => technicalsHtml += `<tr><th scope="row">${entry.key}</th><td>${this.formatNumber(entry.value, entry.precision)}</td></tr>`);
+        this.assetInfoTechnicals.innerHTML = technicalsHtml;
     }
 }
-
-
-
 
 
 function useFallbackIcon(e) {
